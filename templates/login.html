@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-{% block content %}
- login
+{% block page_title %} Login {% endblock %}
+
+{% block page_content %}
+    <div class='page-header'>
+        {% include 'signature.html' %}
+    </div>
+    {{ wtf.quick_form(form) }}
 {% endblock %}
