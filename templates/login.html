@@ -2,7 +2,9 @@
 {% import 'bootstrap/wtf.html' as wtf %}
 
 {% block page_title %} Login {% endblock %}
-
+{% block page_nav_bar %}
+    {{ super() }}
+{% endblock %}
 {% block page_content %}
     <div class='page-header'>
         <h1>Login</h1>

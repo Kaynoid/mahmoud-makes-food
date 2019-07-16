@@ -25,7 +25,7 @@ class User(db.Model):
     __table__name = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(15), unique=True)
-    password = db.Column(db.String(10))
+    password = db.Column(db.String(20))
 
     def __reper__(self):
         return f'<User {self.username}'
@@ -49,7 +49,7 @@ def signup():
         user = User(username=form.username.data, password=form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash(f'{user.username.capitalize()} your account was created successfully, welcome to your homepage')
+        flash(f'{user.username.capitalize()}, your account was created successfully, welcome to your homepage')
         return redirect(url_for('home', name=user.username))
     return render_template('signup.html', **context)
 
@@ -59,7 +59,10 @@ def login():
     form = forms.LoginForm()
     context = {'form': form}
     if form.validate_on_submit():
-        user = User.query(username=form.username.data)
+        user = User.query.filter_by(username=form.username.data, password=form.password.data).first()
+        if not user:
+            flash('dumbfuck')
+            return render_template('login.html', **context)
         return redirect(url_for('home', name=user.username))
     return render_template('login.html', **context)
 

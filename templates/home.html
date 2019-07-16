@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block page_title %}Home{% endblock %}
+{% block page_nav_bar %}
+    <li><a href={{ url_for('index') }}>Logout</a></li>
+{% endblock %}
 {% block page_content %}
     <div class='page-header'>
         <h1>Welcome to your homepage {{ name|capitalize }}!</h1>
