@@ -13,15 +13,18 @@ csrf = CSRFProtect(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('Home.html')
+
 
 @app.route('/login')
 def login():
     form = forms.LoginForm()
     context = {'form': form}
     return render_template('login.html', **context)
+
 
 @app.route('/signup')
 def signup():
