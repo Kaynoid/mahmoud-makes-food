@@ -10,6 +10,6 @@ class LoginForm(FlaskForm):
 
 class SignupForm(FlaskForm):
     username = StringField('Username', [validators.Length(max=15, min=4)])
-    password = PasswordField('Password', [validators.Length(min=5)])
+    password = PasswordField('Password', [validators.Length(max=10, min=5)])
     accept_tos = BooleanField('I accept the Terms of Service', [validators.InputRequired()])
     submit = SubmitField('Signup')
