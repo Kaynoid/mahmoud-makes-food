@@ -20,16 +20,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.environ['SQLALCHEMY_TRACK_MODIFICATIONS']
 db = SQLAlchemy(app)
 
-
-class User(db.Model):
-    __table__name = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(15), unique=True)
-    password = db.Column(db.String(20))
-
-    def __reper__(self):
-        return f'<User {self.username}'
-
+from models import User, Food
 
 @app.before_first_request
 def before_first_request():
@@ -63,7 +54,10 @@ def login():
         if not user:
             flash('dumbfuck')
             return render_template('login.html', **context)
-        return redirect(url_for('home', name=user.username))
+        elif user.is_admin == False:
+            return redirect(url_for('home', name=user.username))
+        elif user.is_admin == True:
+            return redirect(url_for('admin_home', name=user.username))
     return render_template('login.html', **context)
 
 
@@ -71,3 +65,9 @@ def login():
 def home(name):
     context = {'name': name}
     return render_template('home.html', **context)
+
+
+@app.route('/admin/<name>')
+def admin_home(name):
+    context = {'name' : name}
+    return render_template('admin_home.html', **context)
