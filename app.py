@@ -66,9 +66,12 @@ def home(name):
     orderform.item.choices = [(f.item, f.item) for f in models.Food.query.all()]
     context = {'name': name, 'orderform' : orderform}
     if orderform.validate_on_submit():
-        order = models.Order(status='Order Received',date_in=datetime.datetime.now(),date_out=orderform.date.data,user=models.User.query.filter_by(username=name).first())
+        order = models.Order(status='Order Received',date_in=datetime.datetime.now(), date_out=orderform.date.data, user=models.User.query.filter_by(username=name).first())
+        ofl = models.OrderFoodLog(food =models.Food.query.filter_by(item=orderform.item.data).first(), order=order)
+        flash(f'{orderform.item.data} has been ordered successfully!!')
         models.db.session.add(order)
         models.db.session.commit()
+        return redirect(url_for('home', name=name))
     return render_template('home.html', **context)
 
 

@@ -30,5 +30,5 @@ class AdminRemoveForm(FlaskForm):
 
 class OrderForm(FlaskForm):
     item = SelectField(f'Item: ')
-    date = DateTimeLocalField(f'Arrive at: ')
+    date = DateTimeLocalField(f'Arrive at (mm/dd/YYYY hh:mm XM): ', format='%Y-%m-%dT%H:%M')
     submit = SubmitField('Order')
