@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, StringField, SubmitField, validators, PasswordField, SelectField, IntegerField
-from models import Food
+from wtforms import BooleanField, StringField, SubmitField, validators, PasswordField, SelectField, IntegerField, DateTimeField
+from wtforms.fields.html5 import DateTimeLocalField
 
 
 class LoginForm(FlaskForm):
@@ -26,3 +26,9 @@ class AdminAddForm(FlaskForm):
 class AdminRemoveForm(FlaskForm):
     item = SelectField(f'Item: ')
     submit = SubmitField('Remove')
+
+
+class OrderForm(FlaskForm):
+    item = SelectField(f'Item: ')
+    date = DateTimeLocalField(f'Arrive at: ')
+    submit = SubmitField('Order')

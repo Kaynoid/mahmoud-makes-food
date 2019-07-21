@@ -1,6 +1,6 @@
 from datetime import datetime
 import os
-
+import datetime
 from flask import Flask, jsonify, render_template, url_for, redirect, flash
 from flask_wtf.csrf import CSRFProtect
 from flask_bootstrap import Bootstrap
@@ -60,9 +60,15 @@ def login():
     return render_template('login.html', **context)
 
 
-@app.route('/home/<name>')
+@app.route('/home/<name>', methods=['GET', 'POST'])
 def home(name):
-    context = {'name': name}
+    orderform = forms.OrderForm()
+    orderform.item.choices = [(f.item, f.item) for f in models.Food.query.all()]
+    context = {'name': name, 'orderform' : orderform}
+    if orderform.validate_on_submit():
+        order = models.Order(status='Order Received',date_in=datetime.datetime.now(),date_out=orderform.date.data,user=models.User.query.filter_by(username=name).first())
+        models.db.session.add(order)
+        models.db.session.commit()
     return render_template('home.html', **context)
 
 
