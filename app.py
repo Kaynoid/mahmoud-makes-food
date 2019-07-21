@@ -68,12 +68,19 @@ def home(name):
 
 @app.route('/admin/<name>', methods=['GET', 'POST'])
 def admin_home(name):
-    form = forms.AddForm()
-    context = {'name' : name, 'form' : form}
-    if form.validate_on_submit():
-        item = models.Food(item=form.item.data, category=form.category.data, price=form.price.data)
+    addform = forms.AdminAddForm()
+    removeform = forms.AdminRemoveForm()
+    removeform.item.choices = [(f.item, f.item) for f in models.Food.query.all()]
+    context = {'name' : name, 'addform' : addform, 'removeform' : removeform}
+    if addform.validate_on_submit():
+        item = models.Food(item=addform.item.data, category=addform.category.data, price=addform.price.data)
         models.db.session.add(item)
         models.db.session.commit()
         flash(f'{item.item.capitalize()} was added succesfully', 'info')
+        return redirect(url_for('admin_home', name=name))
+    if removeform.validate_on_submit():
+        item = models.Food.query.filter_by(item=removeform.item.data).first()
+        models.db.session.delete(item)
+        models.db.session.commit()
         return redirect(url_for('admin_home', name=name))
     return render_template('admin_home.html', **context)

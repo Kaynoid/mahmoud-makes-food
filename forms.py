@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, StringField, SubmitField, validators, PasswordField, SelectField, IntegerField
+from models import Food
 
 
 class LoginForm(FlaskForm):
@@ -15,8 +16,13 @@ class SignupForm(FlaskForm):
     submit = SubmitField('Signup')
 
 
-class AddForm(FlaskForm):
+class AdminAddForm(FlaskForm):
     item = StringField('Item: ', [validators.Length(min=2)])
     category = SelectField(f'Category: ', choices=[('Main Dish', 'Main Dish'), ('Side Dish', 'Side Dish'), ('Drink', 'Drink')])
     price = IntegerField('Price (EGP):', [validators.InputRequired()])
     submit = SubmitField('Add')
+
+
+class AdminRemoveForm(FlaskForm):
+    item = SelectField(f'Item: ')
+    submit = SubmitField('Remove')
