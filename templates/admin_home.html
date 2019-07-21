@@ -10,9 +10,7 @@
         <h1>Welcome, Administrator {{ name|capitalize }}!</h1>
     </div>
     <div>
-        <h3>Add meals</h3>
+        <h3>Add meal items</h3>
     </div>
-    {{ wtf.quick_form(dish) }}
-    {{ wtf.quick_form(side) }}
-    {{ wtf.quick_form(drink) }}
+    {{ wtf.quick_form(form) }}
 {% endblock %}

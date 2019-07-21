@@ -9,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
 
-import forms
+import forms, models
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
@@ -18,13 +18,12 @@ bootstrap = Bootstrap(app)
 moment = Moment(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.environ['SQLALCHEMY_TRACK_MODIFICATIONS']
-db = SQLAlchemy(app)
+models.db.init_app(app)
 
-from models import User, Dish, Side, Drink
 
 @app.before_first_request
 def before_first_request():
-    db.create_all()
+    models.db.create_all()
 
 
 @app.route('/')
@@ -37,9 +36,9 @@ def signup():
     form = forms.SignupForm()
     context = {'form': form}
     if form.validate_on_submit():
-        user = User(username=form.username.data, password=form.password.data)
-        db.session.add(user)
-        db.session.commit()
+        user = models.User(username=form.username.data, password=form.password.data)
+        models.db.session.add(user)
+        models.db.session.commit()
         flash(f'{user.username.capitalize()}, your account was created successfully, welcome to your homepage')
         return redirect(url_for('home', name=user.username))
     return render_template('signup.html', **context)
@@ -50,7 +49,7 @@ def login():
     form = forms.LoginForm()
     context = {'form': form}
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data, password=form.password.data).first()
+        user = models.User.query.filter_by(username=form.username.data, password=form.password.data).first()
         if not user:
             flash('dumbfuck')
             return render_template('login.html', **context)
@@ -69,23 +68,12 @@ def home(name):
 
 @app.route('/admin/<name>', methods=['GET', 'POST'])
 def admin_home(name):
-    dish = forms.DishForm()
-    side = forms.SideForm()
-    drink = forms.DrinkForm()
-    context = {'name' : name, 'dish' : dish, 'side' : side, 'drink' : drink}
-    if dish.validate_on_submit():
-        meal = Dish(dish=dish.dish_name.data)
-        db.session.add(meal)
-        db.session.commit()
-        flash(f'{meal.dish.capitalize()} was added succesfully')
-    if side.validate_on_submit():
-        meal = Side(side=side.side_dish_name.data)
-        db.session.add(meal)
-        db.session.commit()
-        flash(f'{meal.side.capitalize()} was added succesfully')
-    if drink.validate_on_submit():
-        meal = Drink(drink=drink.drink_name.data)
-        db.session.add(meal)
-        db.session.commit()
-        flash(f'{meal.drink.capitalize()} was added succesfully')
+    form = forms.AddForm()
+    context = {'name' : name, 'form' : form}
+    if form.validate_on_submit():
+        item = models.Food(item=form.item.data, category=form.category.data, price=form.price.data)
+        models.db.session.add(item)
+        models.db.session.commit()
+        flash(f'{item.item.capitalize()} was added succesfully', 'info')
+        return redirect(url_for('admin_home', name=name))
     return render_template('admin_home.html', **context)

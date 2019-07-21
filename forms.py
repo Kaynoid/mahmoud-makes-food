@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, StringField, SubmitField, validators, PasswordField
+from wtforms import BooleanField, StringField, SubmitField, validators, PasswordField, SelectField, IntegerField
 
 
 class LoginForm(FlaskForm):
@@ -15,16 +15,8 @@ class SignupForm(FlaskForm):
     submit = SubmitField('Signup')
 
 
-class DishForm(FlaskForm):
-    dish_name = StringField('Main Dish', [validators.Length(min=2)])
-    submit = SubmitField('Add Main Dish')
-
-
-class SideForm(FlaskForm):
-    side_dish_name = StringField('Side Dish', [validators.Length(min=2)])
-    submit = SubmitField('Add Side Dish')
-
-
-class DrinkForm(FlaskForm):
-    drink_name = StringField('Drink', [validators.Length(min=2)])
-    submit = SubmitField('Add Drink')
+class AddForm(FlaskForm):
+    item = StringField('Item: ', [validators.Length(min=2)])
+    category = SelectField(f'Category: ', choices=[('Main Dish', 'Main Dish'), ('Side Dish', 'Side Dish'), ('Drink', 'Drink')])
+    price = IntegerField('Price (EGP):', [validators.InputRequired()])
+    submit = SubmitField('Add')
