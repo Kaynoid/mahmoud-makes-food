@@ -13,3 +13,18 @@ class SignupForm(FlaskForm):
     password = PasswordField('Password', [validators.Length(max=20, min=5)])
     accept_tos = BooleanField('I accept the Terms of Service', [validators.InputRequired()])
     submit = SubmitField('Signup')
+
+
+class DishForm(FlaskForm):
+    dish_name = StringField('Main Dish', [validators.Length(min=2)])
+    submit = SubmitField('Add Main Dish')
+
+
+class SideForm(FlaskForm):
+    side_dish_name = StringField('Side Dish', [validators.Length(min=2)])
+    submit = SubmitField('Add Side Dish')
+
+
+class DrinkForm(FlaskForm):
+    drink_name = StringField('Drink', [validators.Length(min=2)])
+    submit = SubmitField('Add Drink')

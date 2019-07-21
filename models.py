@@ -11,10 +11,20 @@ class User(db.Model):
         return f'<User {self.username}'
 
 
-class Food(db.Model):
-    __table__name = 'foods'
+class Dish(db.Model):
+    __table__name = 'dish'
     id = db.Column(db.Integer, primary_key=True)
-    meal = db.Column(db.String(15))
+    dish = db.Column(db.String(15))
+
+
+class Side(db.Model):
+    __table__name = 'side'
+    id = db.Column(db.Integer, primary_key=True)
     side = db.Column(db.String(15))
+
+
+class Drink(db.Model):
+    __table__name = 'drink'
+    id = db.Column(db.Integer, primary_key=True)
     drink = db.Column(db.String(15))
 

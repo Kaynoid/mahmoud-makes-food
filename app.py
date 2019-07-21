@@ -20,7 +20,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.environ['SQLALCHEMY_TRACK_MODIFICATIONS']
 db = SQLAlchemy(app)
 
-from models import User, Food
+from models import User, Dish, Side, Drink
 
 @app.before_first_request
 def before_first_request():
@@ -67,7 +67,25 @@ def home(name):
     return render_template('home.html', **context)
 
 
-@app.route('/admin/<name>')
+@app.route('/admin/<name>', methods=['GET', 'POST'])
 def admin_home(name):
-    context = {'name' : name}
+    dish = forms.DishForm()
+    side = forms.SideForm()
+    drink = forms.DrinkForm()
+    context = {'name' : name, 'dish' : dish, 'side' : side, 'drink' : drink}
+    if dish.validate_on_submit():
+        meal = Dish(dish=dish.dish_name.data)
+        db.session.add(meal)
+        db.session.commit()
+        flash(f'{meal.dish.capitalize()} was added succesfully')
+    if side.validate_on_submit():
+        meal = Side(side=side.side_dish_name.data)
+        db.session.add(meal)
+        db.session.commit()
+        flash(f'{meal.side.capitalize()} was added succesfully')
+    if drink.validate_on_submit():
+        meal = Drink(drink=drink.drink_name.data)
+        db.session.add(meal)
+        db.session.commit()
+        flash(f'{meal.drink.capitalize()} was added succesfully')
     return render_template('admin_home.html', **context)

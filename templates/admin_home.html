@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block page_title %}Administration{% endblock %}
 {% block page_nav_bar %}
@@ -8,4 +9,10 @@
     <div class='page-header'>
         <h1>Welcome, Administrator {{ name|capitalize }}!</h1>
     </div>
+    <div>
+        <h3>Add meals</h3>
+    </div>
+    {{ wtf.quick_form(dish) }}
+    {{ wtf.quick_form(side) }}
+    {{ wtf.quick_form(drink) }}
 {% endblock %}
