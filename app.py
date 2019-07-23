@@ -69,7 +69,12 @@ def home(name):
     order_id = [o.id for o in user_orders]
     log = models.OrderFoodLog.query.filter(models.OrderFoodLog.order_id.in_(order_id))
     myorderform.item.choices = [(o.id , o.food.item) for o in log]
-    orderform.item.choices = [(f.item, f.item) for f in models.Food.query.all()]
+    orderform.main.choices = [(f.item, f.item + ' - ' + str(f.price)+' EGP') for f in models.Food.query.filter_by(category='Main Dish')]
+    orderform.side.choices = [(f.item, f.item + ' - ' + str(f.price)+' EGP') for f in models.Food.query.filter_by(category='Side Dish')]
+    orderform.drink.choices = [(f.item, f.item + ' - ' + str(f.price)+' EGP') for f in models.Food.query.filter_by(category='Drink')]
+    orderform.main.choices.insert(0, ('Nothing','-'))
+    orderform.side.choices.insert(0, ('Nothing', '-'))
+    orderform.drink.choices.insert(0, ('Nothing', '-'))
     context = {'name': name, 'orderform': orderform, 'myorders': myorderform, 'status': ' ',
                'price': ' ', 'date_out': ' '}
     if myorderform.is_submitted():
