@@ -78,10 +78,9 @@ def home(name):
     context = {'name': name, 'orderform': orderform, 'myorders': myorderform, 'status': ' ',
                'price': ' ', 'date_out': ' '}
     if myorderform.is_submitted():
-        order = models.Order.query.filter_by(
-            id=models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first().order_id).first()
-        food = models.Food.query.filter_by(
-            id=models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first().food_id).first()
+        if models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first():
+            order = models.Order.query.filter_by(id=models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first().order_id).first()
+            food = models.Food.query.filter_by(id=models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first().food_id).first()
         if myorderform.option.data == 'Check Status':
             status='Status: '+order.status+'___'
             price='Price: '+str(food.price)+' EGP___'
@@ -94,12 +93,20 @@ def home(name):
             models.db.session.commit()
             return redirect(url_for('home', name=name))
     if orderform.validate_on_submit():
-        order = models.Order(status='Order Received',date_in=datetime.datetime.now(), date_out=orderform.date.data, user=models.User.query.filter_by(username=name).first())
-        ofl = models.OrderFoodLog(food =models.Food.query.filter_by(item=orderform.item.data).first(), order=order)
-        flash(f'{orderform.item.data} has been ordered successfully!!')
-        models.db.session.add(order)
-        models.db.session.commit()
-        return redirect(url_for('home', name=name))
+        if orderform.main.data!='Nothing' or orderform.side.data!='Nothing' or orderform.drink.data!='Nothing':
+            order = models.Order(status='Order Received',date_in=datetime.datetime.now(), date_out=orderform.date.data, user=models.User.query.filter_by(username=name).first())
+            if orderform.main.data != 'Nothing':
+                ofl = models.OrderFoodLog(food=models.Food.query.filter_by(item=orderform.main.data).first(), order=order)
+                flash(f'{orderform.main.data} has been ordered successfully!!')
+            if orderform.side.data != 'Nothing':
+                ofl = models.OrderFoodLog(food=models.Food.query.filter_by(item=orderform.side.data).first(),order=order)
+                flash(f'{orderform.side.data} has been ordered successfully!!')
+            if orderform.drink.data != 'Nothing':
+                ofl = models.OrderFoodLog(food=models.Food.query.filter_by(item=orderform.drink.data).first(),order=order)
+                flash(f'{orderform.drink.data} has been ordered successfully!!')
+            models.db.session.add(order)
+            models.db.session.commit()
+            return redirect(url_for('home', name=name))
     return render_template('home.html', **context)
 
 
