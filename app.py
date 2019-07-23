@@ -69,20 +69,25 @@ def home(name):
     order_id = [o.id for o in user_orders]
     log = models.OrderFoodLog.query.filter(models.OrderFoodLog.order_id.in_(order_id))
     myorderform.item.choices = [(o.id , o.food.item) for o in log]
-    print(myorderform.item.choices)
     orderform.item.choices = [(f.item, f.item) for f in models.Food.query.all()]
     context = {'name': name, 'orderform': orderform, 'myorders': myorderform, 'status': ' ',
                'price': ' ', 'date_out': ' '}
     if myorderform.is_submitted():
+        order = models.Order.query.filter_by(
+            id=models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first().order_id).first()
+        food = models.Food.query.filter_by(
+            id=models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first().food_id).first()
         if myorderform.option.data == 'Check Status':
-            order = models.Order.query.filter_by(id=models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first().order_id).first()
-            food = models.Food.query.filter_by(id=models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first().food_id).first()
             status='Status: '+order.status+'___'
             price='Price: '+str(food.price)+' EGP___'
             date_out='Date of Arrival: '+str(order.date_out)
             context['status'] = status
             context['price'] = price
             context['date_out'] = date_out
+        elif myorderform.option.data == 'Cancel Order':
+            models.db.session.delete(order)
+            models.db.session.commit()
+            return redirect(url_for('home', name=name))
     if orderform.validate_on_submit():
         order = models.Order(status='Order Received',date_in=datetime.datetime.now(), date_out=orderform.date.data, user=models.User.query.filter_by(username=name).first())
         ofl = models.OrderFoodLog(food =models.Food.query.filter_by(item=orderform.item.data).first(), order=order)
