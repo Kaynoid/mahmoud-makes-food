@@ -117,7 +117,11 @@ def admin_home(name):
     addform = forms.AdminAddForm()
     removeform = forms.AdminRemoveForm()
     removeform.item.choices = [(f.item, f.item) for f in models.Food.query.all()]
-    context = {'name' : name, 'addform' : addform, 'removeform' : removeform}
+    manageorderform = forms.ManageOrdersForm()
+    log = models.OrderFoodLog.query.all()
+    orders = models.Order.query.all()
+    manageorderform.order.choices = [(f.id, f.item + str(f.price + "for" + ))]
+    context = {'name' : name, 'addform' : addform, 'removeform' : removeform, 'manageorderform': manageorderform}
     if addform.validate_on_submit():
         item = models.Food(item=addform.item.data, category=addform.category.data, price=addform.price.data)
         models.db.session.add(item)
@@ -129,4 +133,7 @@ def admin_home(name):
         models.db.session.delete(item)
         models.db.session.commit()
         return redirect(url_for('admin_home', name=name))
+    if manageorderform.validate_on_submit():
+        if manageorderform.status.data == 'Remove Order':
+
     return render_template('admin_home.html', **context)
