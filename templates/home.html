@@ -10,7 +10,14 @@
         <h1>Welcome to your homepage {{ name|capitalize }}!</h1>
     </div>
     <div>
-        <h4>Make a new order:</h4>
+        <h4>Make a new order</h4>
         {{ wtf.quick_form(orderform) }}
+    </div>
+    <div>
+        <h4>Your Orders:</h4>
+        {{ wtf.quick_form(myorders) }}
+        {{ status }}
+        {{ price }}
+        {{ date_out }}
     </div>
 {% endblock %}

@@ -32,3 +32,9 @@ class OrderForm(FlaskForm):
     item = SelectField(f'Item: ')
     date = DateTimeLocalField(f'Arrive at (mm/dd/YYYY hh:mm XM): ', format='%Y-%m-%dT%H:%M')
     submit = SubmitField('Order')
+
+
+class MyOrdersForm(FlaskForm):
+    item = SelectField(f'Orders:')
+    option = SelectField(f'Action:', choices=[('Cancel Order','Cancel Order'), ('Check Status','Check Status')])
+    submit = SubmitField('Proceed')
