@@ -106,6 +106,7 @@ def home(name):
                 flash(f'{orderform.drink.data} has been ordered successfully!!')
             models.db.session.add(order)
             models.db.session.commit()
+            return redirect(url_for('home', name=name))
         else:
             flash(f'Sorry! You must choose atleast one item to make an order.')
             return redirect(url_for('home', name=name))
