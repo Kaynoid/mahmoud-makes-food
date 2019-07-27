@@ -85,40 +85,41 @@ def home(name):
     context = {'name': name, 'orderform': orderform, 'myorders': myorderform, 'status': ' ',
                'price': ' ', 'date_out': ' '}
     if myorderform.is_submitted():
-        if models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first():
-            order_id = myorderform.item.data
-            order = models.Order.query.filter_by(id=order_id).first()
-        if myorderform.option.data == 'Check Status':
-            status='Status: '+order.status+' - '
-            foodlog = models.OrderFoodLog.query.filter_by(order_id=order_id)
-            if foodlog.count() == 3:
-                total_price = foodlog[0].food.price + foodlog[1].food.price + foodlog[2].food.price
-            elif foodlog.count() == 2:
-                total_price = foodlog[0].food.price + foodlog[1].food.price
-            elif foodlog.count() == 1:
-                total_price = foodlog[0].food.price
-            price = 'Total Price: ' + str(total_price) + ' EGP - '
-            date_out='Date of Arrival: '+str(order.date_out)
-            context['status'] = status
-            context['price'] = price
-            context['date_out'] = date_out
-        elif myorderform.option.data == 'Cancel Order':
-            foodlog = models.OrderFoodLog.query.filter_by(order_id=order_id)
-            if foodlog.count() ==3:
-                models.db.session.delete(foodlog[0])
-                models.db.session.delete(foodlog[0])
-                models.db.session.delete(foodlog[0])
-                models.db.session.commit()
-            elif foodlog.count() == 2:
-                models.db.session.delete(foodlog[0])
-                models.db.session.delete(foodlog[0])
-                models.db.session.commit()
-            elif foodlog.count() == 1:
-                models.db.session.delete(foodlog[0])
-                models.db.session.commit()
-            models.db.session.delete(order)
-            models.db.session.commit()
+        if myorderform.item.data == '-':
+            flash(f'You must choose an order to proceed!')
             return redirect(url_for('home', name=name))
+        else:
+            if models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first():
+                order_id = myorderform.item.data
+                order = models.Order.query.filter_by(id=order_id).first()
+            if myorderform.option.data == 'Check Status':
+                status='Status: '+order.status+' - '
+                foodlog = models.OrderFoodLog.query.filter_by(order_id=order_id)
+                if foodlog.count() == 3:
+                    total_price = foodlog[0].food.price + foodlog[1].food.price + foodlog[2].food.price
+                elif foodlog.count() == 2:
+                    total_price = foodlog[0].food.price + foodlog[1].food.price
+                elif foodlog.count() == 1:
+                    total_price = foodlog[0].food.price
+                price = 'Total Price: ' + str(total_price) + ' EGP - '
+                date_out='Date of Arrival: '+str(order.date_out)
+                context['status'] = status
+                context['price'] = price
+                context['date_out'] = date_out
+            elif myorderform.option.data == 'Cancel Order':
+                foodlog = models.OrderFoodLog.query.filter_by(order_id=order_id)
+                if foodlog.count() ==3:
+                    models.db.session.delete(foodlog[0])
+                    models.db.session.delete(foodlog[0])
+                    models.db.session.delete(foodlog[0])
+                elif foodlog.count() == 2:
+                    models.db.session.delete(foodlog[0])
+                    models.db.session.delete(foodlog[0])
+                elif foodlog.count() == 1:
+                    models.db.session.delete(foodlog[0])
+                models.db.session.delete(order)
+                models.db.session.commit()
+                return redirect(url_for('home', name=name))
     if orderform.validate_on_submit():
         if orderform.main.data!='Nothing' or orderform.side.data!='Nothing' or orderform.drink.data!='Nothing':
             order = models.Order(status='Order Received',date_in=datetime.datetime.now(), date_out=orderform.date.data, user=models.User.query.filter_by(username=name).first())
