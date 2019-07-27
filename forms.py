@@ -37,7 +37,7 @@ class OrderForm(FlaskForm):
 
 
 class MyOrdersForm(FlaskForm):
-    item = SelectField(f'Orders:')
+    item = SelectField(f'Orders:', choices=[('-','-')])
     option = SelectField(f'Action:', choices=[('Cancel Order','Cancel Order'), ('Check Status','Check Status')])
     submit = SubmitField('Proceed')
 

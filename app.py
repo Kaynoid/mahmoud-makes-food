@@ -66,9 +66,16 @@ def home(name):
     myorderform = forms.MyOrdersForm()
     user_id =  models.User.query.filter_by(username=name).first().id
     user_orders = models.Order.query.filter_by(user_id=user_id)
-    order_id = [o.id for o in user_orders]
-    log = models.OrderFoodLog.query.filter(models.OrderFoodLog.order_id.in_(order_id))
-    myorderform.item.choices = [(o.id , o.food.item) for o in log]
+    order_ids = [o.id for o in user_orders]
+    log = models.OrderFoodLog.query.filter(models.OrderFoodLog.order_id.in_(order_ids))
+    for o in order_ids:
+        ofl = models.OrderFoodLog.query.filter_by(order_id=o)
+        if ofl.count()==3:
+            myorderform.item.choices.insert(len(myorderform.item.choices),(o,ofl[0].food.item + ' with ' + ofl[1].food.item + ' and ' + ofl[2].food.item))
+        elif ofl.count()==2:
+            myorderform.item.choices.insert(len(myorderform.item.choices),(o, ofl[0].food.item + ' with ' + ofl[1].food.item))
+        elif ofl.count()==1:
+            myorderform.item.choices.insert(len(myorderform.item.choices),(o, ofl[0].food.item))
     orderform.main.choices = [(f.item, f.item + ' - ' + str(f.price)+' EGP') for f in models.Food.query.filter_by(category='Main Dish')]
     orderform.side.choices = [(f.item, f.item + ' - ' + str(f.price)+' EGP') for f in models.Food.query.filter_by(category='Side Dish')]
     orderform.drink.choices = [(f.item, f.item + ' - ' + str(f.price)+' EGP') for f in models.Food.query.filter_by(category='Drink')]
@@ -79,16 +86,36 @@ def home(name):
                'price': ' ', 'date_out': ' '}
     if myorderform.is_submitted():
         if models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first():
-            order = models.Order.query.filter_by(id=models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first().order_id).first()
-            food = models.Food.query.filter_by(id=models.OrderFoodLog.query.filter_by(id=myorderform.item.data).first().food_id).first()
+            order_id = myorderform.item.data
+            order = models.Order.query.filter_by(id=order_id).first()
         if myorderform.option.data == 'Check Status':
-            status='Status: '+order.status+'___'
-            price='Price: '+str(food.price)+' EGP___'
+            status='Status: '+order.status+' - '
+            foodlog = models.OrderFoodLog.query.filter_by(order_id=order_id)
+            if foodlog.count() == 3:
+                total_price = foodlog[0].food.price + foodlog[1].food.price + foodlog[2].food.price
+            elif foodlog.count() == 2:
+                total_price = foodlog[0].food.price + foodlog[1].food.price
+            elif foodlog.count() == 1:
+                total_price = foodlog[0].food.price
+            price = 'Total Price: ' + str(total_price) + ' EGP - '
             date_out='Date of Arrival: '+str(order.date_out)
             context['status'] = status
             context['price'] = price
             context['date_out'] = date_out
         elif myorderform.option.data == 'Cancel Order':
+            foodlog = models.OrderFoodLog.query.filter_by(order_id=order_id)
+            if foodlog.count() ==3:
+                models.db.session.delete(foodlog[0])
+                models.db.session.delete(foodlog[0])
+                models.db.session.delete(foodlog[0])
+                models.db.session.commit()
+            elif foodlog.count() == 2:
+                models.db.session.delete(foodlog[0])
+                models.db.session.delete(foodlog[0])
+                models.db.session.commit()
+            elif foodlog.count() == 1:
+                models.db.session.delete(foodlog[0])
+                models.db.session.commit()
             models.db.session.delete(order)
             models.db.session.commit()
             return redirect(url_for('home', name=name))
@@ -106,6 +133,7 @@ def home(name):
                 flash(f'{orderform.drink.data} has been ordered successfully!!')
             models.db.session.add(order)
             models.db.session.commit()
+            return redirect(url_for('home', name=name))
         else:
             flash(f'Sorry! You must choose atleast one item to make an order.')
             return redirect(url_for('home', name=name))
