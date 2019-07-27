@@ -22,7 +22,7 @@ class Food(db.Model):
 class Order(db.Model):
     __table_name__ = 'orders'
     id = db.Column(db.Integer, primary_key=True)
-    status = db.Column(db.String(64)) #[order recieved, in progress, delivered]
+    status = db.Column(db.String(32)) #[order received, in progress, delivered]
     date_in = db.Column(db.DateTime)
     date_out = db.Column(db.DateTime)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))

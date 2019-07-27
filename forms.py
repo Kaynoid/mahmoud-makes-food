@@ -20,12 +20,12 @@ class AdminAddForm(FlaskForm):
     item = StringField('Item:', [validators.Length(min=2)])
     category = SelectField(f'Category: ', choices=[('Main Dish', 'Main Dish'), ('Side Dish', 'Side Dish'), ('Drink', 'Drink')])
     price = IntegerField('Price (EGP):', [validators.InputRequired()])
-    submit = SubmitField('Add')
+    add_submit = SubmitField('Add')
 
 
 class AdminRemoveForm(FlaskForm):
     item = SelectField(f'Item:')
-    submit = SubmitField('Remove')
+    remove_submit = SubmitField('Remove')
 
 
 class OrderForm(FlaskForm):
@@ -43,7 +43,7 @@ class MyOrdersForm(FlaskForm):
 
 
 class ManageOrdersForm(FlaskForm):
-    order = SelectField(f'Orders:')
+    order = SelectField(f'Orders:', choices=[('-','-')])
     option = SelectField('Action:', choices=[('Remove Order','Remove Order'),('Set Status','Set Status')])
-    status = SelectField('Status:',choices=[('order recieved','order recieved'),('in progress','in progress'),('delivered','delivered')])
-    submit = SubmitField('Proceed')
+    status = SelectField('Status:',choices=[('order received','order received'),('in progress','in progress'),('delivered','delivered')])
+    manage_submit = SubmitField('Proceed')
