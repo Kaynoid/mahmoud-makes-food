@@ -17,7 +17,7 @@ class SignupForm(FlaskForm):
 
 
 class AdminAddForm(FlaskForm):
-    item = StringField('Item:', [validators.Length(min=2)])
+    item = StringField('Item:', [validators.Length(min=2), validators.InputRequired])
     category = SelectField(f'Category: ', choices=[('Main Dish', 'Main Dish'), ('Side Dish', 'Side Dish'), ('Drink', 'Drink')])
     price = IntegerField('Price (EGP):', [validators.InputRequired()])
     add_submit = SubmitField('Add')
@@ -43,7 +43,7 @@ class MyOrdersForm(FlaskForm):
 
 
 class ManageOrdersForm(FlaskForm):
-    order = SelectField(f'Orders:', choices=[('-','-')])
-    option = SelectField('Action:', choices=[('Remove Order','Remove Order'),('Set Status','Set Status')])
-    status = SelectField('Status:',choices=[('order received','order received'),('in progress','in progress'),('delivered','delivered')])
+    order = SelectField(f'Orders:',[validators.DataRequired()], choices=[('-','-')])
+    option = SelectField('Action:',[validators.DataRequired()], choices=[('Remove Order','Remove Order'),('Set Status','Set Status')])
+    status = SelectField('Status:',[validators.DataRequired()], choices=[('Order Received','Order Received'),('In Progress','In Progress'),('Delivered','Delivered')])
     manage_submit = SubmitField('Proceed')

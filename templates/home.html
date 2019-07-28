@@ -11,7 +11,7 @@
     </div>
     <div>
         <h4>Make a new order</h4>
-        {{ wtf.quick_form(orderform) }}
+        {{ wtf.quick_form(orderform, action=url_for('order', name=name)) }}
     </div>
     <div>
         <h4>Your Orders:</h4>

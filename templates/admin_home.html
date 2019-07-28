@@ -11,14 +11,14 @@
     </div>
     <div>
         <h4>Add meal items</h4>
-        {{ wtf.quick_form(addform) }}
+        {{ wtf.quick_form(addform, action=url_for('admin_add', name=name)) }}
     </div>
     <div>
         <h4>Remove meal items</h4>
-        {{ wtf.quick_form(removeform) }}
+        {{ wtf.quick_form(removeform, action=url_for('admin_remove', name=name)) }}
     </div>
     <div>
         <h4>Manage customer orders</h4>
-        {{ wtf.quick_form(manageorderform) }}
+        {{ wtf.quick_form(manageorderform, action=url_for('admin_manage', name=name)) }}
     </div>
 {% endblock %}

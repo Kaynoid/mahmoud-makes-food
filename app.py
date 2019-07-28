@@ -92,7 +92,7 @@ def home(name):
                 order_id = myorderform.item.data
                 order = models.Order.query.filter_by(id=order_id).first()
             if myorderform.option.data == 'Check Status':
-                status='Status: '+order.status+' - '
+                status = 'Status: ' + order.status + ' - '
                 foodlog = models.OrderFoodLog.query.filter_by(order_id=order_id)
                 if foodlog.count() == 3:
                     total_price = foodlog[0].food.price + foodlog[1].food.price + foodlog[2].food.price
@@ -101,13 +101,13 @@ def home(name):
                 elif foodlog.count() == 1:
                     total_price = foodlog[0].food.price
                 price = 'Total Price: ' + str(total_price) + ' EGP - '
-                date_out='Date of Arrival: '+str(order.date_out)
+                date_out = 'Date of Arrival: ' + str(order.date_out)
                 context['status'] = status
                 context['price'] = price
                 context['date_out'] = date_out
             elif myorderform.option.data == 'Cancel Order':
                 foodlog = models.OrderFoodLog.query.filter_by(order_id=order_id)
-                if foodlog.count() ==3:
+                if foodlog.count() == 3:
                     models.db.session.delete(foodlog[0])
                     models.db.session.delete(foodlog[0])
                     models.db.session.delete(foodlog[0])
@@ -119,35 +119,40 @@ def home(name):
                 models.db.session.delete(order)
                 models.db.session.commit()
                 flash(f'Your order has been cancelled.')
-                return redirect(url_for('home', name=name))
-    if orderform.validate_on_submit():
-        if orderform.main.data!='Nothing' or orderform.side.data!='Nothing' or orderform.drink.data!='Nothing':
-            order = models.Order(status='Order Received',date_in=datetime.datetime.now(), date_out=orderform.date.data, user=models.User.query.filter_by(username=name).first())
-            if orderform.main.data != 'Nothing':
-                ofl = models.OrderFoodLog(food=models.Food.query.filter_by(item=orderform.main.data).first(), order=order)
-                flash(f'{orderform.main.data} has been ordered successfully!!')
-            if orderform.side.data != 'Nothing':
-                ofl = models.OrderFoodLog(food=models.Food.query.filter_by(item=orderform.side.data).first(),order=order)
-                flash(f'{orderform.side.data} has been ordered successfully!!')
-            if orderform.drink.data != 'Nothing':
-                ofl = models.OrderFoodLog(food=models.Food.query.filter_by(item=orderform.drink.data).first(),order=order)
-                flash(f'{orderform.drink.data} has been ordered successfully!!')
-            models.db.session.add(order)
-            models.db.session.commit()
-            return redirect(url_for('home', name=name))
-        else:
-            flash(f'Sorry! You must choose atleast one item to make an order.')
-            return redirect(url_for('home', name=name))
+                return redirect(url_for('home', name=name, context=context))
     return render_template('home.html', **context)
+
+
+@app.route('/home/<name>/order', methods=['POST'])
+def order(name):
+    orderform = forms.OrderForm()
+    if orderform.main.data != 'Nothing' or orderform.side.data != 'Nothing' or orderform.drink.data != 'Nothing':
+        order = models.Order(status='Order Received', date_in=datetime.datetime.now(), date_out=orderform.date.data,
+                             user=models.User.query.filter_by(username=name).first())
+        if orderform.main.data != 'Nothing':
+            ofl = models.OrderFoodLog(food=models.Food.query.filter_by(item=orderform.main.data).first(), order=order)
+            flash(f'{orderform.main.data} has been ordered successfully!!')
+        if orderform.side.data != 'Nothing':
+            ofl = models.OrderFoodLog(food=models.Food.query.filter_by(item=orderform.side.data).first(), order=order)
+            flash(f'{orderform.side.data} has been ordered successfully!!')
+        if orderform.drink.data != 'Nothing':
+            ofl = models.OrderFoodLog(food=models.Food.query.filter_by(item=orderform.drink.data).first(), order=order)
+            flash(f'{orderform.drink.data} has been ordered successfully!!')
+        models.db.session.add(order)
+        models.db.session.commit()
+        return redirect(url_for('home', name=name))
+    else:
+        flash(f'Sorry! You must choose atleast one item to make an order.')
+        return redirect(url_for('home', name=name))
 
 
 @app.route('/admin/<name>', methods=['GET', 'POST'])
 def admin_home(name):
-    addform = forms.AdminAddForm(prefix='addform')
-    removeform = forms.AdminRemoveForm(prefix='removeform')
+    addform = forms.AdminAddForm()
+    removeform = forms.AdminRemoveForm()
     removeform.item.choices = [(f.item, f.item) for f in models.Food.query.all()]
     removeform.item.choices.insert(0,('-','-'))
-    manageorderform = forms.ManageOrdersForm(prefix='manageorderform')
+    manageorderform = forms.ManageOrdersForm()
     order_ids = [o.id for o in models.Order.query.all()]
     for o in order_ids:
         ofl = models.OrderFoodLog.query.filter_by(order_id=o)
@@ -158,38 +163,55 @@ def admin_home(name):
         elif ofl.count()==1:
             manageorderform.order.choices.insert(len(manageorderform.order.choices),(o, ofl[0].food.item + ' for ' + ofl[0].order.user.username))
     context = {'name' : name, 'addform' : addform, 'removeform' : removeform, 'manageorderform': manageorderform}
-    if removeform.is_submitted() and removeform.remove_submit.data:
-        if removeform.item.data != '-':
-            item = models.Food.query.filter_by(item=removeform.item.data).first()
-            models.db.session.delete(item)
-            models.db.session.commit()
-            return redirect(url_for('admin_home', name=name))
-    if manageorderform.is_submitted():
-        if manageorderform.order.data == '-':
-            flash(f'You must choose an order to proceed!')
-        else:
-            if models.OrderFoodLog.query.filter_by(order_id=manageorderform.order.data).first():
-                order_id = manageorderform.order.data
-                order = models.Order.query.filter_by(id=order_id).first()
-            if manageorderform.status.data == 'Remove Order':
-                foodlog = models.OrderFoodLog.query.filter_by(order_id=order_id)
-                if foodlog.count() == 3:
-                    models.db.session.delete(foodlog[0])
-                    models.db.session.delete(foodlog[0])
-                    models.db.session.delete(foodlog[0])
-                elif foodlog.count() == 2:
-                    models.db.session.delete(foodlog[0])
-                    models.db.session.delete(foodlog[0])
-                elif foodlog.count() == 1:
-                    models.db.session.delete(foodlog[0])
-                models.db.session.delete(order)
-                models.db.session.commit()
-                flash(f'Order has been removed successfully!')
-                return redirect(url_for('admin_home', name=name))
-    if addform.validate_on_submit() and addform.add_submit.data:
-        item = models.Food(item=addform.item.data, category=addform.category.data, price=addform.price.data)
-        models.db.session.add(item)
-        models.db.session.commit()
-        flash(f'{item.item.capitalize()} was added succesfully', 'info')
-        return redirect(url_for('admin_home', name=name))
     return render_template('admin_home.html', **context)
+
+@app.route('/admin/<name>/add', methods=['POST'])
+def admin_add(name):
+    addform = forms.AdminAddForm()
+    item = models.Food(item=addform.item.data, category=addform.category.data, price=addform.price.data)
+    models.db.session.add(item)
+    models.db.session.commit()
+    flash(f'{item.item.capitalize()} was added succesfully', 'info')
+    return redirect(url_for('admin_home', name=name))
+
+
+@app.route('/admin/<name>/manage_order', methods=['POST'])
+def admin_manage(name):
+    manageorderform = forms.ManageOrdersForm()
+    if manageorderform.order.data == '-':
+        flash(f'You must choose an order to proceed!')
+        return redirect(url_for('admin_home', name=name))
+    else:
+        if models.OrderFoodLog.query.filter_by(order_id=manageorderform.order.data).first():
+            order_id = manageorderform.order.data
+            order = models.Order.query.filter_by(id=order_id).first()
+        if manageorderform.option.data == 'Remove Order':
+            foodlog = models.OrderFoodLog.query.filter_by(order_id=order_id)
+            if foodlog.count() == 3:
+                models.db.session.delete(foodlog[0])
+                models.db.session.delete(foodlog[0])
+                models.db.session.delete(foodlog[0])
+            elif foodlog.count() == 2:
+                models.db.session.delete(foodlog[0])
+                models.db.session.delete(foodlog[0])
+            elif foodlog.count() == 1:
+                models.db.session.delete(foodlog[0])
+            models.db.session.delete(order)
+            models.db.session.commit()
+            flash(f'Order has been removed successfully!')
+        elif manageorderform.option.data == "Set Status":
+            order.status = manageorderform.status.data
+            models.db.session.commit()
+            flash(f'Order status has been changed to {manageorderform.status.data}')
+        return redirect(url_for('admin_home', name=name))
+
+
+@app.route('/admin/<name>/remove', methods=['POST'])
+def admin_remove(name):
+    removeform = forms.AdminRemoveForm()
+    if removeform.item.data != '-':
+        item = models.Food.query.filter_by(item=removeform.item.data).first()
+        models.db.session.delete(item)
+        models.db.session.commit()
+        flash(f'{item.item.capitalize()} has been removed successfully!')
+    return redirect(url_for('admin_home', name=name))
