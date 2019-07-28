@@ -5,11 +5,8 @@ from flask import Flask, jsonify, render_template, url_for, redirect, flash
 from flask_wtf.csrf import CSRFProtect
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-
-
 import forms, models
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
@@ -51,8 +48,8 @@ def login():
     if form.validate_on_submit():
         user = models.User.query.filter_by(username=form.username.data, password=form.password.data).first()
         if not user:
-            flash('dumbfuck')
-            return render_template('login.html', **context)
+            flash('dumbfuck','error')
+            return redirect(url_for('login'))
         elif user.is_admin == False:
             return redirect(url_for('home', name=user.username))
         elif user.is_admin == True:
@@ -157,11 +154,11 @@ def admin_home(name):
     for o in order_ids:
         ofl = models.OrderFoodLog.query.filter_by(order_id=o)
         if ofl.count()==3:
-            manageorderform.order.choices.insert(len(manageorderform.order.choices),(o,ofl[0].food.item + ' with ' + ofl[1].food.item + ' and ' + ofl[2].food.item + ' for ' + ofl[0].order.user.username))
+            manageorderform.order.choices.insert(len(manageorderform.order.choices),(o,ofl[0].food.item + ' with ' + ofl[1].food.item + ' and ' + ofl[2].food.item + ' for ' + ofl[0].order.user.username +' - '+ ofl[0].order.status))
         elif ofl.count()==2:
-            manageorderform.order.choices.insert(len(manageorderform.order.choices),(o, ofl[0].food.item + ' with ' + ofl[1].food.item + ' for ' + ofl[0].order.user.username))
+            manageorderform.order.choices.insert(len(manageorderform.order.choices),(o, ofl[0].food.item + ' with ' + ofl[1].food.item + ' for ' + ofl[0].order.user.username + ofl[0].order.status))
         elif ofl.count()==1:
-            manageorderform.order.choices.insert(len(manageorderform.order.choices),(o, ofl[0].food.item + ' for ' + ofl[0].order.user.username))
+            manageorderform.order.choices.insert(len(manageorderform.order.choices),(o, ofl[0].food.item + ' for ' + ofl[0].order.user.username + ofl[0].order.status))
     context = {'name' : name, 'addform' : addform, 'removeform' : removeform, 'manageorderform': manageorderform}
     return render_template('admin_home.html', **context)
 
