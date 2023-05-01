@@ -1,6 +1,6 @@
 peewee==3.9.6
 flask
-flask==1.1.0
+flask==2.3.2
 wtforms
 wtforms==2.2.1
 flask_wtf
